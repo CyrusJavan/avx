@@ -8,6 +8,16 @@ Disclaimer: This is a personal project and is in no way affiliated with Aviatrix
 This is done through the Aviatrix SDK that is maintained for use in the Aviatrix
 terraform provider https://github.com/AviatrixSystems/terraform-provider-aviatrix
 
+Build & Install
+-
+
+### MacOS
+```shell script
+$ git clone git@github.com:CyrusJavan/avx.git
+$ cd avx
+$ go build -o /usr/local/bin/avx
+```
+
 Required Configuration
 -
 
