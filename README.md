@@ -5,6 +5,9 @@ Disclaimer: This is a personal project and is in no way affiliated with Aviatrix
 
 `avx` is a CLI for interacting with the Aviatrix RPC API https://api.aviatrix.com/
 
+This is done through the Aviatrix SDK that is maintained for use in the Aviatrix
+terraform provider https://github.com/AviatrixSystems/terraform-provider-aviatrix
+
 Required Configuration
 -
 
