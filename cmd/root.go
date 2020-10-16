@@ -10,18 +10,18 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-		Use:   "avx",
-		Short: "Aviatrix CLI",
-		Long:  "Avx is an Aviatrix API CLI tool.",
-		Args:  cobra.NoArgs,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			err := checkEnvVars()
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-	}
+	Use:   "avx",
+	Short: "Aviatrix CLI",
+	Long:  "Avx is an Aviatrix API CLI tool.",
+	Args:  cobra.NoArgs,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		err := checkEnvVars()
+		if err != nil {
+			return err
+		}
+		return nil
+	},
+}
 
 // Execute executes the root command.
 func Execute() error {
@@ -68,5 +68,3 @@ func getClient() (*goaviatrix.Client, error) {
 	}
 	return client, nil
 }
-
-
