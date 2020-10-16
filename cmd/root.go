@@ -1,40 +1,27 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/terraform-providers/terraform-provider-aviatrix/aviatrix"
 	"github.com/terraform-providers/terraform-provider-aviatrix/goaviatrix"
 )
 
-var (
-	rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 		Use:   "avx",
 		Short: "Aviatrix CLI",
 		Long:  "Avx is an Aviatrix API CLI tool.",
 		Args:  cobra.NoArgs,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			err := checkEnvVars()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
 	}
-
-	loginCmd = &cobra.Command{
-		Use:   "login",
-		Short: "Get a CID from the aviatrix API.",
-		Args:  cobra.NoArgs,
-		RunE:  loginFunc,
-	}
-
-	rpcCmd = &cobra.Command{
-		Use:   "rpc",
-		Short: "Make an API call to the controller.",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  rpcFunc,
-	}
-)
 
 // Execute executes the root command.
 func Execute() error {
@@ -69,9 +56,6 @@ func checkEnvVars() error {
 }
 
 func getClient() (*goaviatrix.Client, error) {
-	if err := checkEnvVars(); err != nil {
-		return nil, err
-	}
 	cfg := aviatrix.Config{
 		Username:     os.Getenv("AVIATRIX_USERNAME"),
 		Password:     os.Getenv("AVIATRIX_PASSWORD"),
@@ -83,68 +67,6 @@ func getClient() (*goaviatrix.Client, error) {
 		return nil, fmt.Errorf("could not get client from config: %w", err)
 	}
 	return client, nil
-}
-
-func loginFunc(cmd *cobra.Command, args []string) error {
-	client, err := getClient()
-	if err != nil {
-		return fmt.Errorf("could not get client: %w", err)
-	}
-
-	fmt.Println("Login successful")
-	fmt.Printf("CID: "+color("%q\n", Green), client.CID)
-	return nil
-}
-
-func rpcFunc(cmd *cobra.Command, args []string) error {
-	client, err := getClient()
-	if err != nil {
-		return fmt.Errorf("could not get client: %w", err)
-	}
-
-	action := args[0]
-
-	data := map[string]interface{}{
-		"action": action,
-		"CID":    client.CID,
-	}
-
-	for _, v := range args[1:] {
-		parts := strings.Split(v, "=")
-		if len(parts) != 2 {
-			return fmt.Errorf("invalid format for API params, expected 'key=value', got %q", v)
-		}
-		data[parts[0]] = parts[1]
-	}
-
-	var dataBuffer bytes.Buffer
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf(color("marshalling json data: %v", Red), err)
-	}
-
-	err = json.Indent(&dataBuffer, jsonData, "", "  ")
-	if err != nil {
-		return fmt.Errorf(color("indenting json data: %v", Red), err)
-	}
-
-	fmt.Printf("controller IP: %s\n", client.ControllerIP)
-	fmt.Printf("request body:\n"+color("%s\n", Green), dataBuffer.String())
-
-	start := time.Now()
-	_, b, err := client.Do("POST", data)
-	end := time.Now()
-	fmt.Printf("latency: %dms\n", end.Sub(start).Milliseconds())
-	if err != nil {
-		return fmt.Errorf(color("non-nil error from API: %v", Red), err)
-	}
-
-	var pp bytes.Buffer
-	err = json.Indent(&pp, b, "", "  ")
-
-	fmt.Printf("response body:\n%s\n", color(pp.String(), Green))
-
-	return nil
 }
 
 type Color string
