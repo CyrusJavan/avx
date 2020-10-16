@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/CyrusJavan/avx/color"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +21,6 @@ func loginFunc(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("Login successful")
-	fmt.Printf("CID: "+color("%q\n", Green), client.CID)
+	fmt.Printf("CID: "+color.Sprint("%q\n", color.Green), client.CID)
 	return nil
 }
