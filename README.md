@@ -30,25 +30,25 @@ Required environment variables:
 Usage
 -
 
-### `avx`
+### `avx login`
 
-With no arguments `avx` will attempt to login with the provided credentials. If
+`avx login` will attempt to login with the provided credentials. If
 successful, the CID will be printed out.
 ```shell script
-$ avx
+$ avx login
 CID: "MMUyqYcNOjaWUWIFHmYA"
 ```
 
 ---
 
-### `avx <action>`
+### `avx rpc <action>`
 
-With a single argument `avx` will attempt to login and send a POST request to
+`avx rpc <action>` will attempt to login and send a POST request to
 the API with the provided `action`. `avx` prints out debug information like the
 controller IP, request body and response latency. `avx` then prints out the 
 response body.
 ```shell script
-$ avx example_action
+$ avx rpc list_accounts
 controller IP: 127.0.0.1
 request body:
 {
@@ -67,12 +67,12 @@ response body:
 
 ---
 
-### `avx <action> <key>=<value> [<key>=<value>...]`
+### `avx rpc <action> <key>=<value> [<key>=<value>...]`
 
-In this form `avx` will send a POST request with the given action and any extra
+In this form `avx rpc` will send a POST request with the given action and any extra
 params that were provided.
 ```shell script
-$ avx delete_account_profile account_name=john-gcloud
+$ avx rpc delete_account_profile account_name=john-gcloud
 controller IP: 127.0.0.1
 request body:
 {

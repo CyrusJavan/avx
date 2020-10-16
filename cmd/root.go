@@ -28,11 +28,11 @@ var (
 		RunE:  loginFunc,
 	}
 
-	actionCmd = &cobra.Command{
-		Use:   "action",
+	rpcCmd = &cobra.Command{
+		Use:   "rpc",
 		Short: "Make an API call to the controller.",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  actionFunc,
+		RunE:  rpcFunc,
 	}
 )
 
@@ -42,7 +42,7 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.AddCommand(actionCmd)
+	rootCmd.AddCommand(rpcCmd)
 	rootCmd.AddCommand(loginCmd)
 }
 
@@ -96,7 +96,7 @@ func loginFunc(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func actionFunc(cmd *cobra.Command, args []string) error {
+func rpcFunc(cmd *cobra.Command, args []string) error {
 	client, err := getClient()
 	if err != nil {
 		return fmt.Errorf("could not get client: %w", err)
