@@ -16,6 +16,7 @@ Build & Install
 $ git clone git@github.com:CyrusJavan/avx.git
 $ cd avx
 $ go build -o /usr/local/bin/avx
+$ chmod +x /usr/local/bin/avx
 ```
 
 Required Configuration
