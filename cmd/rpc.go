@@ -18,10 +18,21 @@ var rpcCmd = &cobra.Command{
 	RunE:  rpcFunc,
 }
 
+func jsonErr(message string, err error) error {
+	j, _ := json.Marshal(struct {
+		Message string
+		Error   string
+	}{
+		Message: message,
+		Error:   err.Error(),
+	})
+	return fmt.Errorf(string(j))
+}
+
 func rpcFunc(cmd *cobra.Command, args []string) error {
 	client, err := getClient()
 	if err != nil {
-		return fmt.Errorf("could not get client: %w", err)
+		return jsonErr("could not get client", err)
 	}
 
 	action := args[0]
@@ -34,7 +45,7 @@ func rpcFunc(cmd *cobra.Command, args []string) error {
 	for _, v := range args[1:] {
 		parts := strings.Split(v, "=")
 		if len(parts) != 2 {
-			return fmt.Errorf("invalid format for API params, expected 'key=value', got %q", v)
+			return jsonErr(fmt.Sprintf("invalid format for API params, expected 'key=value', got %q", v), nil)
 		}
 		data[parts[0]] = parts[1]
 	}
@@ -49,22 +60,28 @@ func rpcFunc(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf(color.Sprint("indenting json data: %v", color.Red), err)
 	}
-
-	fmt.Printf("controller IP: %s\n", client.ControllerIP)
-	fmt.Printf("request body:\n"+color.Sprint("%s\n", color.Green), dataBuffer.String())
+	if !JsonOnly {
+		fmt.Printf("controller IP: %s\n", client.ControllerIP)
+		fmt.Printf("request body:\n"+color.Sprint("%s\n", color.Green), dataBuffer.String())
+	}
 
 	start := time.Now()
 	_, b, err := client.Do("POST", data)
 	end := time.Now()
-	fmt.Printf("latency: %dms\n", end.Sub(start).Milliseconds())
+	if !JsonOnly {
+		fmt.Printf("latency: %dms\n", end.Sub(start).Milliseconds())
+	}
 	if err != nil {
 		return fmt.Errorf(color.Sprint("non-nil error from API: %v", color.Red), err)
 	}
 
-	var pp bytes.Buffer
-	err = json.Indent(&pp, b, "", "  ")
-
-	fmt.Printf("response body:\n%s\n", color.Sprint(pp.String(), color.Green))
+	if JsonOnly {
+		fmt.Println(string(b))
+	} else {
+		var pp bytes.Buffer
+		err = json.Indent(&pp, b, "", "  ")
+		fmt.Printf("response body:\n%s\n", color.Sprint(pp.String(), color.Green))
+	}
 
 	return nil
 }

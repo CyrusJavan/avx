@@ -9,19 +9,23 @@ import (
 	"github.com/terraform-providers/terraform-provider-aviatrix/goaviatrix"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "avx",
-	Short: "Aviatrix CLI",
-	Long:  "Avx is an Aviatrix API CLI tool.",
-	Args:  cobra.NoArgs,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		err := checkEnvVars()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
-}
+var (
+	JsonOnly bool
+
+	rootCmd = &cobra.Command{
+		Use:   "avx",
+		Short: "Aviatrix CLI",
+		Long:  "Avx is an Aviatrix API CLI tool.",
+		Args:  cobra.NoArgs,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			err := checkEnvVars()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	}
+)
 
 // Execute executes the root command.
 func Execute() error {
@@ -29,6 +33,7 @@ func Execute() error {
 }
 
 func init() {
+	rpcCmd.PersistentFlags().BoolVarP(&JsonOnly, "json-only", "j", false, "json response only output")
 	rootCmd.AddCommand(rpcCmd)
 	rootCmd.AddCommand(loginCmd)
 }
