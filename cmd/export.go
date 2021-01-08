@@ -7,20 +7,26 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	"time"
 
 	"github.com/CyrusJavan/avx/color"
 	"github.com/spf13/cobra"
 )
 
+var WriteToStdOut bool
+var IncludeShellFile bool
+
 var exportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export TF config.",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE:  exportFunc,
 }
 
 func exportFunc(cmd *cobra.Command, args []string) error {
+	if len(args) == 1 && !WriteToStdOut {
+		return fmt.Errorf("if flag (--use-stdout, -s) is not set then a path must be provided as the second argument")
+	}
+
 	client, err := getClient()
 	if err != nil {
 		return jsonErr("could not get client", err)
@@ -36,27 +42,7 @@ func exportFunc(cmd *cobra.Command, args []string) error {
 		"resource":                      resourceName,
 	}
 
-	var dataBuffer bytes.Buffer
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf(color.Sprint("marshalling json data: %v", color.Red), err)
-	}
-
-	err = json.Indent(&dataBuffer, jsonData, "", "  ")
-	if err != nil {
-		return fmt.Errorf(color.Sprint("indenting json data: %v", color.Red), err)
-	}
-	if !JsonOnly {
-		fmt.Printf("controller IP: %s\n", client.ControllerIP)
-		fmt.Printf("request body:\n"+color.Sprint("%s\n", color.Green), dataBuffer.String())
-	}
-
-	start := time.Now()
 	_, b, err := client.Do("POST", data)
-	end := time.Now()
-	if !JsonOnly {
-		fmt.Printf("latency: %dms\n", end.Sub(start).Milliseconds())
-	}
 	if err != nil {
 		return fmt.Errorf(color.Sprint("non-nil error from API: %v", color.Red), err)
 	}
@@ -83,18 +69,25 @@ func exportFunc(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("init zip reader: %v", err)
 	}
 
-	for _, zipFile := range zipReader.File {
+	for i, zipFile := range zipReader.File {
+		if !IncludeShellFile && i > 0 {
+			continue
+		}
 		unzippedFileBytes, err := readZipFile(zipFile)
 		if err != nil {
 			return fmt.Errorf("reading zipped file: %v", err)
 		}
-		tfFilePath := args[1]
-		if !strings.HasSuffix(tfFilePath, "/") {
-			tfFilePath += "/"
-		}
-		err = ioutil.WriteFile(tfFilePath+zipFile.Name, unzippedFileBytes, 0644)
-		if err != nil {
-			return fmt.Errorf("writing file %s: %v", zipFile.Name, err)
+		if WriteToStdOut {
+			_, _ = fmt.Fprint(cmd.OutOrStdout(), string(unzippedFileBytes))
+		} else {
+			tfFilePath := args[1]
+			if !strings.HasSuffix(tfFilePath, "/") {
+				tfFilePath += "/"
+			}
+			err = ioutil.WriteFile(tfFilePath+zipFile.Name, unzippedFileBytes, 0644)
+			if err != nil {
+				return fmt.Errorf("writing file %s: %v", zipFile.Name, err)
+			}
 		}
 	}
 

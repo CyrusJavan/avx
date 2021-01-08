@@ -36,6 +36,8 @@ func init() {
 	rpcCmd.PersistentFlags().BoolVarP(&JsonOnly, "json-only", "j", false, "json response only output")
 	rootCmd.AddCommand(rpcCmd)
 	rootCmd.AddCommand(loginCmd)
+	exportCmd.PersistentFlags().BoolVarP(&WriteToStdOut, "use-stdout", "s", false, "write output to stdout instead of file")
+	exportCmd.PersistentFlags().BoolVarP(&IncludeShellFile, "include-shell-script", "i", false, "also output the import shell script")
 	rootCmd.AddCommand(exportCmd)
 }
 
