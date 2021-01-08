@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var WriteToStdOut bool
+var WriteToFile bool
 var IncludeShellFile bool
 
 var exportCmd = &cobra.Command{
@@ -23,8 +23,8 @@ var exportCmd = &cobra.Command{
 }
 
 func exportFunc(cmd *cobra.Command, args []string) error {
-	if len(args) == 1 && !WriteToStdOut {
-		return fmt.Errorf("if flag (--use-stdout, -s) is not set then a path must be provided as the second argument")
+	if len(args) == 2 && !WriteToFile {
+		return fmt.Errorf("if flag (--file, -f) is not set then a path must not be provided as the second argument")
 	}
 
 	client, err := getClient()
@@ -77,7 +77,7 @@ func exportFunc(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("reading zipped file: %v", err)
 		}
-		if WriteToStdOut {
+		if !WriteToFile {
 			_, _ = fmt.Fprint(cmd.OutOrStdout(), string(unzippedFileBytes))
 		} else {
 			tfFilePath := args[1]
