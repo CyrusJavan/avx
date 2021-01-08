@@ -36,6 +36,7 @@ func init() {
 	rpcCmd.PersistentFlags().BoolVarP(&JsonOnly, "json-only", "j", false, "json response only output")
 	rootCmd.AddCommand(rpcCmd)
 	rootCmd.AddCommand(loginCmd)
+	rootCmd.AddCommand(exportCmd)
 }
 
 func checkEnvVars() error {
