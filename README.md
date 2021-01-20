@@ -90,3 +90,25 @@ response body:
 ```
 
 ---
+
+### `avx export <resource_name>`
+
+Exports the Terraform configuration for the provided resource name.
+```shell script
+$ avx export transit_gateway
+resource "aviatrix_transit_gateway" "transit_gateway_1" {
+    gw_name = "transit-gateway-bezukhov"
+    vpc_id = "vpc-0a00b42135b095d6c"
+    cloud_type = 1
+    vpc_reg = "us-east-1"
+    connected_transit = true
+    enable_active_mesh = true
+    gw_size = "c4.4xlarge"
+    account_name = "transit-gateway-acc-bezukhov"
+    enable_hybrid_connection = true
+    subnet = "10.0.0.64/28"
+    learned_cidrs_approval_mode = "connection"
+}
+```
+
+---
