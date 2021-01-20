@@ -38,6 +38,7 @@ func init() {
 	rootCmd.AddCommand(loginCmd)
 	exportCmd.PersistentFlags().BoolVarP(&WriteToFile, "file", "f", false, "write output to file instead of stdout")
 	exportCmd.PersistentFlags().BoolVarP(&IncludeShellFile, "include-shell-script", "i", false, "also output the import shell script")
+	exportCmd.PersistentFlags().BoolVarP(&ManageInternally, "manage-attm-internally", "m", false, "export with attachments managed internally")
 	rootCmd.AddCommand(exportCmd)
 }
 

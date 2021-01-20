@@ -14,6 +14,7 @@ import (
 
 var WriteToFile bool
 var IncludeShellFile bool
+var ManageInternally bool
 
 var exportCmd = &cobra.Command{
 	Use:   "export",
@@ -34,11 +35,16 @@ func exportFunc(cmd *cobra.Command, args []string) error {
 
 	resourceName := args[0]
 
+	manageInternally := "false"
+	if ManageInternally {
+		manageInternally = "true"
+	}
+
 	data := map[string]interface{}{
 		"action":                        "run_export_terraform",
 		"CID":                           client.CID,
 		"operation":                     "export_tf",
-		"manage_attachments_internally": "false",
+		"manage_attachments_internally": manageInternally,
 		"resource":                      resourceName,
 	}
 
