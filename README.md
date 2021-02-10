@@ -11,7 +11,13 @@ terraform provider https://github.com/AviatrixSystems/terraform-provider-aviatri
 Build & Install
 -
 
-### MacOS
+### Install via Homebrew on MacOS
+```shell script
+$ brew tap CyrusJavan/tap
+$ brew install avx
+```
+
+### Build from source on MacOS
 ```shell script
 $ git clone git@github.com:CyrusJavan/avx.git
 $ cd avx
