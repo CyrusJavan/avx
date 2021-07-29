@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/AviatrixSystems/terraform-provider-aviatrix/v2/aviatrix"
+	"github.com/AviatrixSystems/terraform-provider-aviatrix/v2/goaviatrix"
 	"github.com/spf13/cobra"
-	"github.com/terraform-providers/terraform-provider-aviatrix/aviatrix"
-	"github.com/terraform-providers/terraform-provider-aviatrix/goaviatrix"
 )
 
 var (

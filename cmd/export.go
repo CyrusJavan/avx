@@ -3,9 +3,9 @@ package cmd
 import (
 	"archive/zip"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"strings"
 
 	"github.com/CyrusJavan/avx/color"
@@ -40,35 +40,22 @@ func exportFunc(cmd *cobra.Command, args []string) error {
 		manageInternally = "true"
 	}
 
-	data := map[string]interface{}{
-		"action":                        "run_export_terraform",
+	data := map[string]string{
+		"action":                        "export_terraform_resource",
 		"CID":                           client.CID,
-		"operation":                     "export_tf",
 		"manage_attachments_internally": manageInternally,
 		"resource":                      resourceName,
 	}
-
-	_, b, err := client.Do("POST", data)
+	v := url.Values{}
+	for k, s := range data {
+		v.Add(k, s)
+	}
+	u := "https://" + client.ControllerIP + "/v1/api/"
+	resp, err := client.HTTPClient.PostForm(u, v)
 	if err != nil {
 		return fmt.Errorf(color.Sprint("non-nil error from API: %v", color.Red), err)
 	}
 
-	type Resp struct {
-		Results string
-	}
-	var r Resp
-	err = json.Unmarshal(b, &r)
-	if err != nil {
-		return fmt.Errorf("decoding response: %v", err)
-	}
-
-	path := "https://" + client.ControllerIP + "/v1/download?" +
-		fmt.Sprintf("filename=%s", r.Results) +
-		"&" + fmt.Sprintf("CID=%s", client.CID)
-	resp, err := client.Request("GET", path, nil)
-	if err != nil {
-		return fmt.Errorf("making download request: %v", err)
-	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	zipReader, err := zip.NewReader(bytes.NewReader(body), int64(len(body)))
 	if err != nil {
